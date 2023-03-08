@@ -1,0 +1,27 @@
+Find the disk
+lsblk -o NAME,HCTL,SIZE,MOUNTPOINT | grep -i "sd"
+Prepare a new empty disk
+$ sudo parted /dev/sdc --script mklabel gpt mkpart xfspart xfs 0% 100%
+$ sudo mkfs.xfs /dev/sdc1
+$ sudo partprobe /dev/sdc1
+
+
+Mount the disk
+$ sudo mkdir /drive
+$ sudo mount /dev/sdc1 /drive
+$ sudo blkid
+
+Next, open the /etc/fstab file in a text editor. Add a line to the end of the file, using the UUID value for the /dev/sdc1 device that was created in the previous steps, and the mountpoint of /drive. the new line would look like the following:
+UUID="a5e53665-4385-4b0c-a816-4a46f59c95c0" /drive xfs   defaults,nofail   1   2
+
+
+Verify the disk
+lsblk -o NAME,HCTL,SIZE,MOUNTPOINT | grep -i "sd"
+
+
+
+
+ Note
+Later removing a data disk without editing fstab could cause the VM to fail to boot. Most distributions provide either the nofail and/or nobootwait fstab options. These options allow a system to boot even if the disk fails to mount at boot time. Consult your distribution's documentation for more information on these parameters.
+The nofail option ensures that the VM starts even if the filesystem is corrupt or the disk does not exist at boot time. Without this option, you may encounter behavior as described in Cannot SSH to Linux VM due to FSTAB errors
+
